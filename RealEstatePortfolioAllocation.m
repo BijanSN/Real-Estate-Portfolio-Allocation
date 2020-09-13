@@ -1,7 +1,8 @@
-%Practical assignment using quaterly total returns
-%If you have any trouble lunching this matlab files, please contact Bijan Sadat,at bijan.sadat@gmail.com 
-
+%If you have any trouble lunching this matlab file, please contact me, Bijan Sadat, at bijan.sadat@gmail.com 
+%Thank you for reading.
+%Requirements : Rmatlab2018 + financial toolbox functions
 clear all, clc, close all
+
 [ExchangeDate,SMI,SP500,CAC,FTSE,BONDUS,BONDCH,REUK,REFR,REASIA,REUS,REListedCH,REDirectCH] = importfile1('DATA_Total_Returns.xlsx','Feuil1',2,83);
 Prices = [SMI,SP500,CAC,FTSE,BONDUS,BONDCH,REUK,REFR,REASIA,REUS,REListedCH,REDirectCH];
 REUS= REUS(26:end)
@@ -13,16 +14,19 @@ plot(ExchangeDate,SP500)
 hold on
 plot(ExchangeDate,SMI)
 plot(ExchangeDate,FTSE)
-plot(ExchangeDate,CAC) % to have smooth graph 
+plot(ExchangeDate,CAC)
+
 %Bonds
 plot(ExchangeDate,BONDUS)
 plot(ExchangeDate,BONDCH)
-%listed Real Estate
+
+%Listed Real Estate
 plot(ExchangeDate(26:end),REUS)
 plot(ExchangeDate,REUK)
 plot(ExchangeDate,REFR)
 plot(ExchangeDate,REASIA)
 plot(ExchangeDate,REListedCH)
+
 %Direct Real estate
 plot(ExchangeDate,REDirectCH)
 
@@ -49,7 +53,6 @@ RE_RE_US= (REUS(end)-REUS(1))/REUS(1)
 TotalReturns(10)= RE_RE_US
 
 AnnualisedReturns=nthroot(TotalReturns,size(Returns,1)/4)-1 %81 (quaterly periods) /4 = number of yearly period : 20.25 year
-%(1+AnnualisedReturns).^20.25 = Iotal Return. If the asset did that % per year over 20 year => get the total return.
 %% Relative performence figures
 % Let's use log returns( multiplicative)
 
@@ -104,7 +107,6 @@ ylabel('Returns')
 
 %%
 
-% assumption : "market return" =  Average returns of all assets (1/N)
 mret=mean(mean(Returns),'omitnan')% expected quaterly market returns
 Amret= mean(mean(AnnualisedReturns,'omitnan')) %  annualised MARKET RETURNS
 
@@ -127,38 +129,24 @@ p1 = setAssetMoments(p1,AssetMean/sqrt(4),AssetCovar/sqrt(4));
 p1 = setDefaultConstraints(p1);
 pwgt = estimateFrontier(p1,100);
 
-plotly=pwgt' % les weigths transposées=> dans plotly.
+plotly=pwgt' %  > in plotly.
 
 [prsk,pret] = estimatePortMoments(p1,pwgt);
-% plotFrontier(p1)
 
 %% Define specific portfolios among that universe p1 :
 
 q = setBudget(p1, 0, 1);
 qwgt = estimateFrontier(q,100);
 [qrsk,qret] = estimatePortMoments(q,qwgt);
-% plotFrontier(q)
 
 p1 = setInitPort(p1,1/p1.NumAssets);
 [ersk,eret] = estimatePortMoments(p1,p1.InitPort); % e => EWP
 
-% constraints on  EWP such that you can't invest in Real Estate : 
-
-
-% TargetReturn = 1.3*eret;            % input target annualized return and risk here
-% TargetRisk = 0.8*ersk;
-% 
-% awgt = estimateFrontierByReturn(p,TargetReturn/12);
-% [arsk,aret] = estimatePortMoments(p,awgt);
-% 
-% bwgt = estimateFrontierByRisk(p,TargetRisk/sqrt(12));
-% [brsk,bret] = estimatePortMoments(p,bwgt);
-
 portfolioexamples_plot('Asset Risks and Returns', ... 
     {'line', prsk, pret}, ...
     {'line', qrsk, qret, [], [], 1}, ...
-    {'scatter', ersk, eret, {'EWP'}}, ...  %     {'scatter', arsk, aret, {sprintf('%g%% Return',100*TargetReturn)}}, ...%     {'scatter', brsk, bret, {sprintf('%g%% Risk',100*TargetRisk)}}, ...
- 	{'scatter', crsk, cret, {'Cash'}}, ...%{'scatter', Srsk, Sret, {'Constraint no Real Estate'}}, ...
+    {'scatter', ersk, eret, {'EWP'}}, ...  
+ 	{'scatter', crsk, cret, {'Cash'}}, ...
     {'scatter', sqrt(diag(p1.AssetCovar)), p1.AssetMean, p1.AssetList, '.r'});
 
 %% Creating portfolio 3 , without Real Estate : show benef of Real Estate
@@ -186,9 +174,10 @@ help estimateMaxSharpeRatio
 portfolioexamples_plot('Asset Risks and Returns', ... 
     {'line', prsk3, pret3}, ...
     {'line', qrsk3, qret3, [], [], 1}, ...
-    {'scatter', ersk3, eret3, {'EWP Without Real Estate'}}, ...  %     {'scatter', arsk, aret, {sprintf('%g%% Return',100*TargetReturn)}}, ...%     {'scatter', brsk, bret, {sprintf('%g%% Risk',100*TargetRisk)}}, ...
+    {'scatter', ersk3, eret3, {'EWP Without Real Estate'}}, ...  
  	{'scatter', crsk, cret, {'Cash'}}, ... 
     {'scatter', sqrt(diag(p3.AssetCovar)), p3.AssetMean, p3.AssetList, '.r'});
+
 % Suboptimal frontier
 % EWP, for example, gets riskier without RE
 
@@ -266,9 +255,9 @@ portfolioexamples_plot('Asset Risks and Returns', ...
     {'line', qrsk, qret, [], [], 1}, ...
     {'line', prsk22, pret22,{'Schrinked'}}, ...
     {'line', qrsk22, qret22, [], [], 1}, ...
-    {'scatter', ersk, eret, {'EWP UN S'}}, ...  %     {'scatter', arsk, aret, {sprintf('%g%% Return',100*TargetReturn)}}, ...%     {'scatter', brsk, bret, {sprintf('%g%% Risk',100*TargetRisk)}}, ...
- 	{'scatter', ersk22, eret22, {'EWP S'}}, ...  %     {'scatter', arsk, aret, {sprintf('%g%% Return',100*TargetReturn)}}, ...%     {'scatter', brsk, bret, {sprintf('%g%% Risk',100*TargetRisk)}}, ...
- 	{'scatter', crsk, cret, {'Cash'}}, ...%{'scatter', Srsk, Sret, {'Constraint no Real Estate'}}, ...
+    {'scatter', ersk, eret, {'EWP UN S'}}, ... 
+ 	{'scatter', ersk22, eret22, {'EWP S'}}, ...
+ 	{'scatter', crsk, cret, {'Cash'}}, ...
     {'scatter', sqrt(diag(p1.AssetCovar)), p1.AssetMean, p1.AssetList, '.r'},...
     {'scatter', sqrt(diag(p2.AssetCovar)), p2.AssetMean, p2.AssetList, '.r'});
 
@@ -287,15 +276,8 @@ GroupMin = [0 0];
 GroupMax = [0.5 0.3];
 
 [A,b] = pcglims(Group,GroupMin,GroupMax)
-% 
-% A= zeros(3,12)
-% A(1,1:4)=1;  %Sstocks
-% A(2,5:6)=1;  % Bonds
-% A(3,7:end)=1;  % Real estate
-
 
 NumPorts=100;
-
 p6=Portfolio;
 
 p6=Portfolio(p6,'RiskFreeRate',cret)
@@ -304,9 +286,7 @@ p6 = setAssetMoments(p6,AssetMean/sqrt(4),AssetCovar/sqrt(4));
 
 p6 = setBounds(p6, 0, 1);
 p6 = setBudget(p6, 1, 1);
-%p1 = setGroups(p1, Group, GroupMin, GroupMax);
 
-% disp(p1.AInequality)
 p6.AInequality = A
 p6.bInequality =b
 
@@ -314,11 +294,6 @@ PortWts6 = estimateFrontier(p6, NumPorts);
 
 Weigths_constrainted= PortWts6'
 [PortRisk6, PortReturn6] = estimatePortMoments(p6, PortWts6);
-
-%plotFrontier(p1)
-% PortRisk
-% PortReturn
-% PortWts
 
 plotly6=PortWts6' %plotly
 
@@ -328,15 +303,6 @@ qwgt6 = estimateFrontier(q,100);
 [qrsk6,qret6] = estimatePortMoments(q,PortWts6);
 p6 = setInitPort(p6,1/p6.NumAssets);
 [ersk6,eret6] = estimatePortMoments(p6,p6.InitPort); % e => EWP
-
-
-%frontière avec contraintes
-% portfolioexamples_plot('Asset Risks and Returns', ... 
-%     {'line', prsk6, pret6}, ...
-%     {'line', qrsk6, qret6, [], [], 1}, ...
-%     {'scatter', ersk6, eret6, {'EWP'}}, ...
-%  	{'scatter', crsk, cret, {'Cash'}}, ...
-%     {'scatter', sqrt(diag(p1.AssetCovar)), p1.AssetMean, p1.AssetList, '.r'});
 
 %frontière avec contraintes et sans, together :
 close all
@@ -348,8 +314,6 @@ portfolioexamples_plot('Asset Risks and Returns', ...
     {'line', qrsk6, qret6, [], [], 1}, ... %     {'scatter', arsk, aret, {sprintf('%g%% Return',100*TargetReturn)}}, ...%     {'scatter', brsk, bret, {sprintf('%g%% Risk',100*TargetRisk)}}, ...
  	{'scatter', crsk, cret, {'Cash'}}, ... %{'scatter', Srsk, Sret, {'Constraint no Real Estate'}}, ...
     {'scatter', sqrt(diag(p1.AssetCovar)), p1.AssetMean, p1.AssetList, '.r'});
-
-
 
 %% Sans RE FR,car outlier : 11 assets now.
 
@@ -365,7 +329,6 @@ p = setAssetMoments(p,AssetMeannoFR/sqrt(4),AssetCovarNOFR/sqrt(4));
 
 p = setBounds(p, 0, 1);
 p = setBudget(p, 1, 1);
-
 
 Group = zeros(2,11);
 Group(1,1:4)=1; %Stocks 
@@ -455,6 +418,3 @@ w5=estimateMaxSharpeRatio(p6)
 [risk5, ret5] = estimatePortMoments(p6, w5);
 plot(risk5, ret5,'o') % OPP2 Constrained
 legend('EWP all Assets', 'Efficient Frontier','All Assets', 'No direct RE', 'Schrinked', 'No Real Estate', 'OPP2 Constrained')
-
-
-
